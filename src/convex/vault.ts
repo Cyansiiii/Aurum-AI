@@ -25,6 +25,25 @@ export const getVaultHistory = query({
   },
 });
 
+export const toggleRiskState = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const latest = await ctx.db
+      .query("vault_states")
+      .withIndex("by_timestamp")
+      .order("desc")
+      .first();
+
+    if (latest) {
+      await ctx.db.insert("vault_states", {
+        ...latest,
+        status: latest.status === "RISK_ON" ? "RISK_OFF" : "RISK_ON",
+        timestamp: Date.now(),
+      });
+    }
+  },
+});
+
 // Internal mutation to seed/update vault state (simulating AI updates)
 export const updateVaultState = mutation({
   args: {

@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation } from "convex/react";
-import { motion } from "framer-motion";
+import { motion, useSpring, useTransform, useMotionValue, animate } from "framer-motion";
 import { 
   AreaChart, 
   Area, 
@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -29,11 +30,33 @@ import {
   Activity, 
   Shield, 
   Zap,
-  LogOut
+  LogOut,
+  RefreshCw
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+
+function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0, className }: { value: number, prefix?: string, suffix?: string, decimals?: number, className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const controls = animate(0, value, {
+      duration: 1.5,
+      ease: "easeOut",
+      onUpdate(value) {
+        node.textContent = `${prefix}${value.toFixed(decimals)}${suffix}`;
+      },
+    });
+
+    return () => controls.stop();
+  }, [value, prefix, suffix, decimals]);
+
+  return <span ref={ref} className={className} />;
+}
 
 export default function Dashboard() {
   const { user, signOut, isAuthenticated } = useAuth();
@@ -44,8 +67,10 @@ export default function Dashboard() {
   const vaultHistory = useQuery(api.vault.getVaultHistory);
   const createTransaction = useMutation(api.transactions.createTransaction);
   const seedVault = useMutation(api.vault.seedVaultData);
+  const toggleRisk = useMutation(api.vault.toggleRiskState);
 
   const [amount, setAmount] = useState("");
+  const [convertAmount, setConvertAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Ensure user has a wallet when they visit dashboard
@@ -86,6 +111,37 @@ export default function Dashboard() {
     }
   };
 
+  const handleConversion = async () => {
+     if (!convertAmount || isNaN(Number(convertAmount)) || Number(convertAmount) <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      // Simulating conversion by just creating a rebalance transaction record
+      // In a real app, this would swap assets. Here we just log it.
+      await createTransaction({
+        type: "REBALANCE", // Using REBALANCE as a proxy for conversion in this demo
+        amount: Number(convertAmount),
+      });
+      toast.success(`Successfully converted ${convertAmount} USD to Gold (ARM)`);
+      setConvertAmount("");
+    } catch (error) {
+      toast.error("Conversion failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRiskToggle = async () => {
+    try {
+      await toggleRisk();
+      toast.success(`Risk mode updated`);
+    } catch (error) {
+      toast.error("Failed to update risk mode");
+    }
+  };
+
   if (!user) return null;
 
   const formatCurrency = (value: number) => 
@@ -96,7 +152,11 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        >
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-primary">Dashboard</h1>
             <p className="text-muted-foreground">Welcome back, {user.name || "User"}</p>
@@ -110,41 +170,72 @@ export default function Dashboard() {
               <LogOut className="w-4 h-4" /> Sign Out
             </Button>
           </div>
-        </header>
+        </motion.header>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard 
             title="Total Balance" 
-            value={formatCurrency((user.depositedAmount || 0) * (vaultState?.gold_price || 2000) / 2000)} // Approx value
+            value={(user.depositedAmount || 0) * (vaultState?.gold_price || 2000) / 2000}
+            isCurrency
             icon={<Wallet className="w-4 h-4 text-primary" />}
             trend="+2.5%"
+            delay={0.1}
           />
           <StatsCard 
             title="ARM Tokens" 
-            value={(user.armBalance || 0).toFixed(2)} 
+            value={user.armBalance || 0} 
             icon={<Shield className="w-4 h-4 text-blue-400" />}
             subtext="1 ARM = 1 Gold oz (peg)"
+            delay={0.2}
           />
           <StatsCard 
             title="Current APY" 
-            value={(vaultState?.current_apy || 0).toFixed(2) + "%"} 
+            value={vaultState?.current_apy || 0}
+            suffix="%"
             icon={<TrendingUp className="w-4 h-4 text-green-400" />}
             trend="AI Optimized"
+            delay={0.3}
           />
-          <StatsCard 
-            title="Risk Mode" 
-            value={vaultState?.status || "ANALYZING"} 
-            icon={<Activity className="w-4 h-4 text-orange-400" />}
-            subtext="Auto-Rebalancing"
-          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className="glass border-none h-full">
+              <CardContent className="p-6 flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Risk Mode</p>
+                    <h3 className="text-2xl font-bold mt-2">{vaultState?.status || "ANALYZING"}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Auto-Rebalancing</p>
+                  </div>
+                  <div className="p-2 bg-white/5 rounded-lg">
+                    <Activity className="w-4 h-4 text-orange-400" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Toggle Risk Strategy</span>
+                  <Switch 
+                    checked={vaultState?.status === "RISK_ON"}
+                    onCheckedChange={handleRiskToggle}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Chart Section */}
-          <div className="lg:col-span-2 space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="lg:col-span-2 space-y-8"
+          >
             <Card className="glass border-none">
               <CardHeader>
                 <CardTitle>Vault Performance</CardTitle>
@@ -181,6 +272,7 @@ export default function Dashboard() {
                       stroke="var(--primary)" 
                       fillOpacity={1} 
                       fill="url(#colorGold)" 
+                      animationDuration={2000}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -194,11 +286,17 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {transactions?.map((tx) => (
-                    <div key={tx._id} className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                  {transactions?.map((tx, i) => (
+                    <motion.div 
+                      key={tx._id} 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * i }}
+                      className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-full ${tx.type === 'DEPOSIT' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
-                          {tx.type === 'DEPOSIT' ? <ArrowDownLeft className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                        <div className={`p-2 rounded-full ${tx.type === 'DEPOSIT' ? 'bg-green-500/20 text-green-500' : tx.type === 'WITHDRAW' ? 'bg-red-500/20 text-red-500' : 'bg-blue-500/20 text-blue-500'}`}>
+                          {tx.type === 'DEPOSIT' ? <ArrowDownLeft className="w-4 h-4" /> : tx.type === 'WITHDRAW' ? <ArrowUpRight className="w-4 h-4" /> : <RefreshCw className="w-4 h-4" />}
                         </div>
                         <div>
                           <p className="font-medium">{tx.type}</p>
@@ -206,10 +304,10 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold">{tx.type === 'DEPOSIT' ? '+' : '-'}{formatCurrency(tx.amount)}</p>
+                        <p className="font-bold">{tx.type === 'DEPOSIT' ? '+' : tx.type === 'WITHDRAW' ? '-' : ''}{formatCurrency(tx.amount)}</p>
                         <p className="text-xs text-muted-foreground font-mono">{tx.tx_hash.slice(0, 6)}...{tx.tx_hash.slice(-4)}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                   {(!transactions || transactions.length === 0) && (
                     <div className="text-center text-muted-foreground py-8">No transactions yet</div>
@@ -217,10 +315,15 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Action Panel */}
-          <div className="space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="space-y-8"
+          >
             <Card className="glass border-none h-fit">
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
@@ -228,9 +331,10 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="deposit" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsList className="grid w-full grid-cols-3 mb-4">
                     <TabsTrigger value="deposit">Deposit</TabsTrigger>
                     <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+                    <TabsTrigger value="convert">Convert</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="deposit" className="space-y-4">
@@ -282,6 +386,39 @@ export default function Dashboard() {
                       {isSubmitting ? "Processing..." : "Withdraw Funds"}
                     </Button>
                   </TabsContent>
+
+                  <TabsContent value="convert" className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Convert USD to Gold (ARM)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                        <Input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="pl-7"
+                          value={convertAmount}
+                          onChange={(e) => setConvertAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white/5 rounded-lg text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rate</span>
+                        <span>1 USD ≈ 0.0005 OZ</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Fee</span>
+                        <span>0.1%</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-black"
+                      onClick={handleConversion}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Converting..." : "Convert to Gold"}
+                    </Button>
+                  </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
@@ -313,34 +450,47 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
   );
 }
 
-function StatsCard({ title, value, icon, trend, subtext }: { title: string, value: string, icon: React.ReactNode, trend?: string, subtext?: string }) {
+function StatsCard({ title, value, icon, trend, subtext, delay = 0, isCurrency = false, suffix = "" }: { title: string, value: number, icon: React.ReactNode, trend?: string, subtext?: string, delay?: number, isCurrency?: boolean, suffix?: string }) {
   return (
-    <Card className="glass border-none">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <h3 className="text-2xl font-bold mt-2">{value}</h3>
-            {subtext && <p className="text-xs text-muted-foreground mt-1">{subtext}</p>}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay }}
+    >
+      <Card className="glass border-none h-full">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              <h3 className="text-2xl font-bold mt-2">
+                <AnimatedNumber 
+                  value={value} 
+                  prefix={isCurrency ? "$" : ""} 
+                  suffix={suffix}
+                  decimals={isCurrency ? 2 : 2}
+                />
+              </h3>
+              {subtext && <p className="text-xs text-muted-foreground mt-1">{subtext}</p>}
+            </div>
+            <div className="p-2 bg-white/5 rounded-lg">
+              {icon}
+            </div>
           </div>
-          <div className="p-2 bg-white/5 rounded-lg">
-            {icon}
-          </div>
-        </div>
-        {trend && (
-          <div className="mt-4 flex items-center text-xs text-green-400">
-            <TrendingUp className="w-3 h-3 mr-1" />
-            {trend}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {trend && (
+            <div className="mt-4 flex items-center text-xs text-green-400">
+              <TrendingUp className="w-3 h-3 mr-1" />
+              {trend}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
