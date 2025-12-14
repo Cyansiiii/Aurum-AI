@@ -32,13 +32,595 @@ import {
   Zap,
   LogOut,
   RefreshCw,
-  ShieldCheck
+  ShieldCheck,
+  Timer,
+  Gauge
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { OnChainProof } from "@/components/dashboard/OnChainProof";
+import { TokenInfo } from "@/components/dashboard/TokenInfo";
+import { AIDecisionLog } from "@/components/dashboard/AIDecisionLog";
 
 function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0, className }: { value: number, prefix?: string, suffix?: string, decimals?: number, className?: string }) {
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  return (
+    <div className="min-h-screen bg-background p-4 md:p-8 pb-24">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* Header */}
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        >
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">Aurum-AI Dashboard</h1>
+            <p className="text-muted-foreground">Welcome back, {user.name || "User"}</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="glass px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              QIE Mainnet Connected
+            </div>
+            <Button variant="outline" onClick={() => signOut()} className="gap-2">
+              <LogOut className="w-4 h-4" /> Sign Out
+            </Button>
+          </div>
+        </motion.header>
+
+        {/* Stats Grid */}
+=======
+  return (
+    <div className="min-h-screen bg-background p-4 md:p-8 pb-24">
+      {/* Demo Mode Banner */}
+      <div className="fixed top-0 left-0 right-0 bg-amber-500/10 border-b border-amber-500/20 text-amber-500 text-xs font-bold text-center py-1 z-50 backdrop-blur-sm">
+        Demo Mode – Testnet / Simulated USD values
+      </div>
+
+      <div className="max-w-7xl mx-auto space-y-8 mt-6">
+        
+        {/* Header */}
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        >
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">Aurum-AI Dashboard</h1>
+            <p className="text-muted-foreground">Welcome back, {user.name || "User"}</p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-4">
+              <div className="glass px-4 py-2 rounded-full flex items-center gap-2 text-sm border-primary/20">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="font-bold text-primary">QIE Mainnet Connected</span>
+              </div>
+              <Button variant="outline" onClick={() => signOut()} className="gap-2 h-9">
+                <LogOut className="w-4 h-4" /> Sign Out
+              </Button>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> {user.walletAddress ? `${user.walletAddress.slice(0,6)}...${user.walletAddress.slice(-4)}` : "Connecting..."}</span>
+              <span className="w-1 h-1 rounded-full bg-white/20" />
+              <span>QIE Balance: 1,240.50 QIE</span>
+            </div>
+          </div>
+        </motion.header>
+
+        {/* Stats Grid */}
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Chart Section */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="lg:col-span-2 space-y-8"
+          >
+            <Card className="glass border-none">
+              <CardHeader>
+                <CardTitle>Vault Performance</CardTitle>
+                <CardDescription>Real-time AI rebalancing performance vs Market</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={vaultHistory || []}>
+                    <defs>
+                      <linearGradient id="colorGold" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      tickFormatter={(tick) => new Date(tick).toLocaleDateString()}
+                      stroke="rgba(255,255,255,0.5)"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.5)"
+                      fontSize={12}
+                      domain={['auto', 'auto']}
+                    />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      labelFormatter={(label) => new Date(label).toLocaleString()}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="gold_price" 
+                      stroke="var(--primary)" 
+                      fillOpacity={1} 
+                      fill="url(#colorGold)" 
+                      animationDuration={2000}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Recent Transactions */}
+            <Card className="glass border-none">
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {transactions?.map((tx, i) => (
+                    <motion.div 
+                      key={tx._id} 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * i }}
+                      className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`p-2 rounded-full ${tx.type === 'DEPOSIT' ? 'bg-green-500/20 text-green-500' : tx.type === 'WITHDRAW' ? 'bg-red-500/20 text-red-500' : 'bg-blue-500/20 text-blue-500'}`}>
+                          {tx.type === 'DEPOSIT' ? <ArrowDownLeft className="w-4 h-4" /> : tx.type === 'WITHDRAW' ? <ArrowUpRight className="w-4 h-4" /> : <RefreshCw className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <p className="font-medium">{tx.type === 'REBALANCE' ? 'CONVERSION' : tx.type}</p>
+                          <p className="text-xs text-muted-foreground">{new Date(tx.timestamp).toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">{tx.type === 'DEPOSIT' ? '+' : tx.type === 'WITHDRAW' ? '-' : ''}{formatCurrency(tx.amount)}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{tx.tx_hash.slice(0, 6)}...{tx.tx_hash.slice(-4)}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                  {(!transactions || transactions.length === 0) && (
+                    <div className="text-center text-muted-foreground py-8">No transactions yet</div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Action Panel */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="space-y-8"
+          >
+            <Card className="glass border-none h-fit">
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Manage your liquidity position</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="deposit" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-4">
+                    <TabsTrigger value="deposit">Deposit</TabsTrigger>
+                    <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+                    <TabsTrigger value="convert">Convert</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="deposit" className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Amount (USD)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                        <Input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="pl-7"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={() => handleTransaction("DEPOSIT")}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Processing..." : "Deposit Funds"}
+                    </Button>
+                    <p className="text-xs text-green-400 text-center">
+                      * Receive $ARM rewards instantly upon deposit.
+                    </p>
+                  </TabsContent>
+
+                  <TabsContent value="withdraw" className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Amount (USD)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                        <Input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="pl-7"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      variant="destructive" 
+                      className="w-full"
+                      onClick={() => handleTransaction("WITHDRAW")}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Processing..." : "Withdraw Funds"}
+                    </Button>
+                  </TabsContent>
+
+                  <TabsContent value="convert" className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Convert USD to Gold (ARM)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                        <Input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="pl-7"
+                          value={convertAmount}
+                          onChange={(e) => setConvertAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white/5 rounded-lg text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Current Gold Price</span>
+                        <span>{formatCurrency(vaultState?.gold_price || 2000)} / oz</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Est. ARM Tokens</span>
+                        <span>{convertAmount && !isNaN(Number(convertAmount)) ? (Number(convertAmount) / (vaultState?.gold_price || 2000)).toFixed(4) : "0.0000"}</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-black"
+                      onClick={handleConversion}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Converting..." : "Convert to Gold"}
+                    </Button>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-none bg-gradient-to-br from-primary/10 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-primary" />
+                    AI Insights
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="h-7 text-xs bg-white/5 hover:bg-white/10 border-white/10"
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing}
+                  >
+                    {isAnalyzing ? (
+                      <RefreshCw className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <Zap className="w-3 h-3 mr-1" />
+                    )}
+                    {isAnalyzing ? "Analyzing..." : "Run Analysis"}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Market Sentiment</span>
+                    <span className={vaultState?.status === "RISK_ON" ? "text-green-400 font-medium" : "text-red-400 font-medium"}>
+                      {vaultState?.status === "RISK_ON" ? "Bullish (Risk On)" : "Bearish (Risk Off)"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Volatility Index</span>
+                    <span className="text-yellow-400 font-medium">Moderate</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Next Rebalance</span>
+                    <span className="text-white font-medium">~4h 12m</span>
+                  </div>
+                  <div className="mt-4 p-3 rounded bg-black/20 text-xs text-muted-foreground border border-white/5">
+                    {vaultState?.analysis || "\"AI suggests increasing Gold allocation due to rising global uncertainty metrics.\""}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+=======
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column: Chart, Activity, On-Chain Proof */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="lg:col-span-2 space-y-8"
+          >
+            <Card className="glass border-none">
+              <CardHeader>
+                <CardTitle>Vault Performance</CardTitle>
+                <CardDescription>Real-time AI rebalancing performance vs Market</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={vaultHistory || []}>
+                    <defs>
+                      <linearGradient id="colorGold" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      tickFormatter={(tick) => new Date(tick).toLocaleDateString()}
+                      stroke="rgba(255,255,255,0.5)"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.5)"
+                      fontSize={12}
+                      domain={['auto', 'auto']}
+                    />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      labelFormatter={(label) => new Date(label).toLocaleString()}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="gold_price" 
+                      stroke="var(--primary)" 
+                      fillOpacity={1} 
+                      fill="url(#colorGold)" 
+                      animationDuration={2000}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <OnChainProof />
+              <TokenInfo />
+            </div>
+
+            {/* Recent Transactions */}
+            <Card className="glass border-none">
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {transactions?.map((tx, i) => (
+                    <motion.div 
+                      key={tx._id} 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * i }}
+                      className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`p-2 rounded-full ${tx.type === 'DEPOSIT' ? 'bg-green-500/20 text-green-500' : tx.type === 'WITHDRAW' ? 'bg-red-500/20 text-red-500' : 'bg-blue-500/20 text-blue-500'}`}>
+                          {tx.type === 'DEPOSIT' ? <ArrowDownLeft className="w-4 h-4" /> : tx.type === 'WITHDRAW' ? <ArrowUpRight className="w-4 h-4" /> : <RefreshCw className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <p className="font-medium">{tx.type === 'REBALANCE' ? 'CONVERSION' : tx.type}</p>
+                          <p className="text-xs text-muted-foreground">{new Date(tx.timestamp).toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">{tx.type === 'DEPOSIT' ? '+' : tx.type === 'WITHDRAW' ? '-' : ''}{formatCurrency(tx.amount)}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{tx.tx_hash.slice(0, 6)}...{tx.tx_hash.slice(-4)}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                  {(!transactions || transactions.length === 0) && (
+                    <div className="text-center text-muted-foreground py-8">No transactions yet</div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Right Column: Actions, AI Insights, Decision Log */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="space-y-8"
+          >
+            <Card className="glass border-none h-fit">
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Manage your liquidity position</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="deposit" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-4">
+                    <TabsTrigger value="deposit">Deposit</TabsTrigger>
+                    <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+                    <TabsTrigger value="convert">Rebalance</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="deposit" className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Amount (USD)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                        <Input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="pl-7"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={() => handleTransaction("DEPOSIT")}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Processing..." : "Deposit into AI Vault"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Executed via QIE Router + Aurum Vault smart contract
+                    </p>
+                  </TabsContent>
+
+                  <TabsContent value="withdraw" className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Amount (USD)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                        <Input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="pl-7"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      variant="destructive" 
+                      className="w-full"
+                      onClick={() => handleTransaction("WITHDRAW")}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Processing..." : "Withdraw to Wallet"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Funds returned to connected QIE wallet
+                    </p>
+                  </TabsContent>
+
+                  <TabsContent value="convert" className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">AI Rebalance (QIE ↔ Gold)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                        <Input 
+                          type="number" 
+                          placeholder="0.00" 
+                          className="pl-7"
+                          value={convertAmount}
+                          onChange={(e) => setConvertAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white/5 rounded-lg text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Current Gold Price</span>
+                        <span>{formatCurrency(vaultState?.gold_price || 2000)} / oz</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Est. ARM Tokens</span>
+                        <span>{convertAmount && !isNaN(Number(convertAmount)) ? (Number(convertAmount) / (vaultState?.gold_price || 2000)).toFixed(4) : "0.0000"}</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-black"
+                      onClick={handleConversion}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Rebalancing..." : "Execute AI Rebalance"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Swaps assets via QIEDEX liquidity pools
+                    </p>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-none bg-gradient-to-br from-primary/10 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-primary" />
+                    AI Insights
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="h-7 text-xs bg-white/5 hover:bg-white/10 border-white/10"
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing}
+                  >
+                    {isAnalyzing ? (
+                      <RefreshCw className="w-3 h-3 animate-spin mr-1" />
+                    ) : (
+                      <Zap className="w-3 h-3 mr-1" />
+                    )}
+                    {isAnalyzing ? "Analyzing..." : "Run Analysis"}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Market Sentiment</span>
+                    <span className={vaultState?.status === "RISK_ON" ? "text-green-400 font-medium" : "text-red-400 font-medium"}>
+                      {vaultState?.status === "RISK_ON" ? "Bullish (Risk On)" : "Bearish (Risk Off)"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">AI Confidence</span>
+                    <div className="flex items-center gap-2">
+                      <Gauge className="w-3 h-3 text-primary" />
+                      <span className="text-primary font-bold">94.2%</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Oracle Refresh</span>
+                    <div className="flex items-center gap-2">
+                      <Timer className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-white font-mono">00:03s</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 rounded bg-black/20 text-xs text-muted-foreground border border-white/5">
+                    {vaultState?.analysis || "\"AI suggests increasing Gold allocation due to rising global uncertainty metrics.\""}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <AIDecisionLog />
+          </motion.div>
+        </div>
   const ref = useRef<HTMLSpanElement>(null);
   
   useEffect(() => {
