@@ -1,5 +1,4 @@
 import { Email } from "@convex-dev/auth/providers/Email";
-import axios from "axios";
 import { RandomReader, generateRandomString } from "@oslojs/crypto/random";
 
 export const emailOtp = Email({
@@ -17,19 +16,23 @@ export const emailOtp = Email({
   },
   async sendVerificationRequest({ identifier: email, token }) {
     try {
-      await axios.post(
-        "https://email.vly.ai/send_otp",
-        {
+      const response = await fetch("https://email.vly.ai/send_otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "vlytothemoon2025",
+        },
+        body: JSON.stringify({
           to: email,
           otp: token,
           appName: process.env.VLY_APP_NAME || "a vly.ai application",
-        },
-        {
-          headers: {
-            "x-api-key": "vlytothemoon2025",
-          },
-        },
-      );
+        }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Failed to send OTP: ${response.status} ${text}`);
+      }
     } catch (error) {
       throw new Error(JSON.stringify(error));
     }
