@@ -4,8 +4,10 @@ export const emailOtp = Email({
   id: "email-otp",
   maxAge: 60 * 15, // 15 minutes
   async generateVerificationToken() {
-    // Use a simple random number generator for robustness
-    const token = Math.floor(100000 + Math.random() * 900000).toString();
+    // Use crypto for secure random number generation
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    const token = (100000 + (array[0] % 900000)).toString();
     return token;
   },
   async sendVerificationRequest({ identifier: email, token }) {

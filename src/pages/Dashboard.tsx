@@ -105,10 +105,15 @@ export default function Dashboard() {
         >
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-primary">Aurum-AI Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user.name || "User"}</p>
+            <p className="text-muted-foreground">Welcome back, {user.name || (user.isAnonymous ? "Guest" : "User")}</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <div className="flex items-center gap-4">
+              {user.isAnonymous && (
+                <div className="glass px-4 py-2 rounded-full flex items-center gap-2 text-sm border-amber-500/20 text-amber-500">
+                  <span className="font-bold">Guest Mode</span>
+                </div>
+              )}
               <div className="glass px-4 py-2 rounded-full flex items-center gap-2 text-sm border-primary/20">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="font-bold text-primary">QIE Mainnet Connected</span>
