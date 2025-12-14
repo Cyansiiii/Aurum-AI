@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Shield } from "lucide-react";
+import { Shield, Github } from "lucide-react";
 import { useNavigate } from "react-router";
 
 interface NavbarProps {
@@ -30,6 +30,15 @@ export function Navbar({ isAuthenticated, scrollToSection }: NavbarProps) {
         <button onClick={() => scrollToSection('roadmap')} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
           Roadmap
         </button>
+        <a 
+          href="https://remix.ethereum.org/#lang=en&optimize&runs=200&evmVersion&version=soljson-v0.8.31+commit.fd3a2265.js"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+        >
+          <Github className="w-4 h-4" />
+          GitHub
+        </a>
       </div>
 
       <div className="flex items-center gap-4">
