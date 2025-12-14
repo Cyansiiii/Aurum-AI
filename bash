@@ -1,1 +1,1 @@
-pnpm update @convex-dev/auth @auth/core
+rm src/convex/auth.config.ts

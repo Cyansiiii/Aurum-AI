@@ -1,3 +1,3 @@
 {
-  "plan": "1. Verify Guest sign-in functionality.\n2. Verify Email OTP sign-in functionality.\n3. Monitor for any further server errors."
+  "plan": "1. Verify that the guest login works by asking the user to try again.\n2. If issues persist, check the Convex dashboard logs for specific error details."
 }
