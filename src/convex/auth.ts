@@ -6,7 +6,7 @@ import { emailOtp } from "./auth/emailOtp";
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [
     // Explicitly set the ID to ensure it matches the client call
-    Anonymous({ id: "anonymous" }), 
+    Anonymous(), 
     emailOtp
   ],
 });
